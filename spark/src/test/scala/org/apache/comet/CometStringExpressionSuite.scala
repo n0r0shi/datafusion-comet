@@ -148,6 +148,26 @@ class CometStringExpressionSuite extends CometTestBase {
     }
   }
 
+  test("levenshtein") {
+    withParquetTable(
+      Seq(("kitten", "sitting"), ("hello", "hallo"), ("abc", "abc"), ("", "test"), (null, "test"))
+        .map(x => (x._1, x._2)),
+      "tbl") {
+      // 2-arg basic
+      checkSparkAnswerAndOperator("SELECT levenshtein(_1, _2) FROM tbl")
+      // literals
+      checkSparkAnswerAndOperator("SELECT levenshtein('kitten', 'sitting') FROM tbl")
+      // null handling
+      checkSparkAnswerAndOperator("SELECT levenshtein(_1, NULL) FROM tbl")
+      // empty strings
+      checkSparkAnswerAndOperator("SELECT levenshtein('', _2) FROM tbl")
+      // 3-arg with threshold should fall back
+      checkSparkAnswerAndFallbackReason(
+        "SELECT levenshtein(_1, _2, 2) FROM tbl",
+        "levenshtein with threshold is not supported")
+    }
+  }
+
   test("split string basic") {
     withSQLConf("spark.comet.expression.StringSplit.allowIncompatible" -> "true") {
       withParquetTable((0 until 5).map(i => (s"value$i,test$i", i)), "tbl") {

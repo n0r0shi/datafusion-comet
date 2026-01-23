@@ -422,7 +422,7 @@
 - [ ] left
 - [x] len
 - [x] length
-- [ ] levenshtein
+- [x] levenshtein
 - [ ] locate
 - [x] lower
 - [x] lpad
